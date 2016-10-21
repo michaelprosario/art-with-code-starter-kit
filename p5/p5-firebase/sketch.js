@@ -1,10 +1,9 @@
 
 var database;
 var colorOptions;
-var date = new Date();
 
 function setup() {
-	createCanvas(800, 600);
+	createCanvas(1024, 768);
 
 	// Initialize Firebase
 	var config = {
@@ -16,22 +15,24 @@ function setup() {
 	firebase.initializeApp(config);
 	database = firebase.database();
 
-
-	//make a list of colors
+	//make a list of colors in an array....
         colorOptions = new Array();
 	colorOptions[0] = "#faa916"
 	colorOptions[1] = "#6d676e"
 	colorOptions[2] = "#1b1b1e"
 	colorOptions[3] = "#96031a"
 
-
-	
-
 	//pull points from firebase and draw them...
 	var pointRef = firebase.database().ref('points');
 	pointRef.on('child_added', function(data) {
+
+		// So... a new point has been added. Get the data.
 	  	var aPoint = data.val();
+
+		//set the color based on point
 		fill(aPoint.color);
+
+		//draw the point
 		ellipse(aPoint.x, aPoint.y, 10, 10);
 	});
 
@@ -40,31 +41,32 @@ function setup() {
 }
 
 function draw() {
-	if (mouseIsPressed) {
-		var minutes = date.getMinutes();
-		var i = minutes % 4;
-		console.log(i);
+	if (mouseIsPressed) {		
+		//get current time
+		var date = new Date();
+		var m = date.getMinutes();
+
+		//select a color option based on the minutes
+		var i = m % 4;
 		
+		// make a point capturing location(x,y) and color
 		var aPoint = {}
 		aPoint.x = mouseX;
 		aPoint.y = mouseY;
 		aPoint.color = colorOptions[i];
 
-		database.ref("points").push(aPoint);
-
-		fill(aPoint.color);		
-		ellipse(mouseX, mouseY, 10, 10);
-	
+		//add point to firebase ...
+		database.ref("points").push(aPoint);	
 	}
 
 
-	if (keyCode == ESCAPE) {
-		var pointRef = database.ref('points')
-		pointRef.remove();
-		window.location = window.location.href;	
-	}	
+}
 
 
+function clearCanvas()
+{
+	var pointRef = database.ref('points')
+	pointRef.remove();
 
 }
 
